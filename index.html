@@ -66,11 +66,11 @@
       text-align: center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
-    .key:active, .key.glow {
+    .key:active {
       background: #ffe08a;
-      box-shadow: 0 0 20px #ffdd57;
+      box-shadow: 0 0 15px #ffdd57;
       transform: scale(1.1);
     }
     .top-bar {
@@ -90,7 +90,6 @@
     <div class="best-box">
       <span class="icon">🏆</span><span id="best">0</span>
     </div>
-    <button id="muteBtn" class="button is-small">🔊</button>
   </div>
 
   <div class="problem-box">
@@ -121,26 +120,15 @@
     const streakEl = document.getElementById('streak');
     const bestEl = document.getElementById('best');
     const dotsEl = document.getElementById('dots');
-    const muteBtn = document.getElementById('muteBtn');
 
     let streak = 0;
     let best = parseInt(localStorage.getItem('bestScore')) || 0;
     bestEl.textContent = best;
     let history = [];
     let currentAnswer;
-    let muted = false;
 
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
     const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
-
-    function playSound(sound) {
-      if (!muted) sound.play();
-    }
-
-    muteBtn.addEventListener('click', () => {
-      muted = !muted;
-      muteBtn.textContent = muted ? "🔇" : "🔊";
-    });
 
     function newProblem() {
       let isDivision = Math.random() < 0.5;
@@ -175,7 +163,7 @@
       const val = parseInt(answerEl.value);
       if (isNaN(val)) return;
       if (val === currentAnswer) {
-        playSound(correctSound);
+        correctSound.play();
         streak++;
         if (streak > best) {
           best = streak;
@@ -184,7 +172,7 @@
         }
         updateDots(true);
       } else {
-        playSound(wrongSound);
+        wrongSound.play();
         streak = 0;
         updateDots(false);
       }
@@ -199,8 +187,6 @@
     document.querySelectorAll('.key').forEach(key => {
       key.addEventListener('click', () => {
         let val = key.textContent;
-        key.classList.add("glow");
-        setTimeout(() => key.classList.remove("glow"), 400);
         if (val === "⏎") {
           checkAnswer();
         } else if (val === "←") {
