@@ -1,203 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Times & Division Trainer</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   <style>
     body {
-      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      background: linear-gradient(135deg, #48c6ef, #6f86d6);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .trainer-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.8rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      text-align: center;
+    }
+
+    .top-line {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
+      gap: 1rem;
     }
-    .problem-box {
-      font-size: 2rem;
+
+    .title-center {
+      flex: 1;
       text-align: center;
-      margin-top: 2rem;
+      margin: 0;
     }
-    .answer-input {
-      font-size: 2rem;
-      text-align: center;
-      width: 120px;
-    }
-    .streak-box, .best-box {
+
+    .badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      margin: 0 10px;
-      color: #fff;
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      padding: 0.5rem 1rem;
+      gap: .4rem;
+      padding: .35rem .7rem;
+      border-radius: 999px;
+      color: white;
+      font-weight: 600;
+      min-width: 64px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
     }
-    .icon {
-      margin-right: 0.3rem;
-    }
-    .dots {
-      display: flex;
-      justify-content: center;
-      margin: 1rem 0;
-    }
+    .badge.fire { background: linear-gradient(90deg,#ff6b6b,#ffb86b); }
+    .badge.trophy { background: linear-gradient(90deg,#ffd37a,#ffb84d); color:#2b2b2b; }
+
+    #problem { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; }
+    #answer { text-align:center; font-size:1.4rem; max-width:220px; margin: .5rem auto; }
+
     .dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      margin: 0 5px;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      display:inline-block;
+      margin:0 5px;
       background: lightgray;
     }
     .dot.correct { background: #48c774; }
     .dot.wrong { background: #f14668; }
-    .keyboard {
+
+    /* Keyboard */
+    .keys {
+      margin-top: 14px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       max-width: 300px;
-      margin: 1rem auto;
+      margin-left: auto;
+      margin-right: auto;
     }
     .key {
-      background: #fff;
+      background: white;
       border-radius: 10px;
-      padding: 1rem;
-      font-size: 1.5rem;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      padding: 12px 6px;
+      font-size: 1.25rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
       cursor: pointer;
-      transition: all 0.2s ease;
+      user-select: none;
     }
-    .key:active {
-      background: #ffe08a;
-      box-shadow: 0 0 15px #ffdd57;
-      transform: scale(1.1);
+    .key:active { transform: translateY(1px); }
+    .controls { display:flex; gap:10px; justify-content:center; margin-top:12px; }
+
+    .feedback {
+      min-height: 1.4rem;
+      margin-top: .6rem;
+      font-weight: 600;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
+
+    @media (max-width:420px){
+      #problem { font-size: 1.6rem; }
+      .badge { min-width: 56px; font-size: .95rem; }
+      .key { padding: 10px 6px; font-size: 1.1rem; }
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <div class="streak-box">
-      <span class="icon">🔥</span><span id="streak">0</span>
+  <div class="trainer-box">
+    <div class="top-line">
+      <!-- Fire badge (streak) -->
+      <div class="badge fire" title="Current streak">
+        <span>🔥</span><span id="streak">0</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="title title-center has-text-info">Times & Division Trainer</h1>
+
+      <!-- Trophy badge (best, persisted) -->
+      <div class="badge trophy" title="Best streak (saved)">
+        <span>🏆</span><span id="best">0</span>
+      </div>
     </div>
-    <h1 class="title has-text-centered">Math Trainer</h1>
-    <div class="best-box">
-      <span class="icon">🏆</span><span id="best">0</span>
+
+    <div class="box" style="margin-top: 1rem;">
+      <div id="problem">Loading...</div>
+
+      <input id="answer" class="input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Your answer">
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- On-screen keyboard (columns) -->
+    <div class="keys" id="keyboard">
+      <div class="key">1</div>
+      <div class="key">2</div>
+      <div class="key">3</div>
+      <div class="key">4</div>
+      <div class="key">5</div>
+      <div class="key">6</div>
+      <div class="key">7</div>
+      <div class="key">8</div>
+      <div class="key">9</div>
+      <div class="key">0</div>
+      <div class="key">⌫</div>
+      <div class="key">⏎</div>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <span class="dot" id="dot1"></span>
+      <span class="dot" id="dot2"></span>
+      <span class="dot" id="dot3"></span>
+      <span class="dot" id="dot4"></span>
+      <span class="dot" id="dot5"></span>
     </div>
   </div>
-
-  <div class="problem-box">
-    <span id="problem"></span>
-    <input id="answer" class="input answer-input" type="number" autocomplete="off">
-  </div>
-
-  <div class="keyboard">
-    <div class="key">1</div>
-    <div class="key">2</div>
-    <div class="key">3</div>
-    <div class="key">4</div>
-    <div class="key">5</div>
-    <div class="key">6</div>
-    <div class="key">7</div>
-    <div class="key">8</div>
-    <div class="key">9</div>
-    <div class="key">0</div>
-    <div class="key">←</div>
-    <div class="key">⏎</div>
-  </div>
-
-  <div class="dots" id="dots"></div>
 
   <script>
+    // Elements
     const problemEl = document.getElementById('problem');
     const answerEl = document.getElementById('answer');
+    const feedbackEl = document.getElementById('feedback');
     const streakEl = document.getElementById('streak');
     const bestEl = document.getElementById('best');
-    const dotsEl = document.getElementById('dots');
+    const dots = [
+      document.getElementById('dot1'),
+      document.getElementById('dot2'),
+      document.getElementById('dot3'),
+      document.getElementById('dot4'),
+      document.getElementById('dot5'),
+    ];
 
+    // State
     let streak = 0;
+    let history = [];
+    let currentAnswer = null;
+
+    // Persistent best score (localStorage). Keep key "bestScore".
     let best = parseInt(localStorage.getItem('bestScore')) || 0;
     bestEl.textContent = best;
-    let history = [];
-    let currentAnswer;
 
-    const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-    const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    // Sounds (kept as before)
+    const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
-    function newProblem() {
-      let isDivision = Math.random() < 0.5;
-      let a = Math.floor(Math.random() * 10) + 1;
-      let b = Math.floor(Math.random() * 10) + 1;
+    // Generate a new problem (1..10 only, multiplication or inverse division)
+    function newProblem(){
+      const a = Math.floor(Math.random()*10) + 1;
+      const b = Math.floor(Math.random()*10) + 1;
 
-      if (isDivision) {
-        currentAnswer = a;
-        problemEl.textContent = `${a*b} ÷ ${b} = __`;
-      } else {
-        currentAnswer = a*b;
+      if (Math.random() < 0.5) {
+        // multiplication
+        currentAnswer = a * b;
         problemEl.textContent = `${a} × ${b} = __`;
+      } else {
+        // division inverse (whole number)
+        currentAnswer = a;
+        problemEl.textContent = `${a * b} ÷ ${b} = __`;
       }
-      answerEl.value = "";
+
+      answerEl.value = '';
+      feedbackEl.textContent = '';
       answerEl.focus();
     }
 
-    function updateDots(correct) {
+    // Update the last-five dots (rolling window)
+    function updateHistory(correct){
       history.push(correct);
       if (history.length > 5) history.shift();
-      dotsEl.innerHTML = "";
-      history.forEach(h => {
-        const dot = document.createElement('div');
-        dot.classList.add('dot');
-        if (h === true) dot.classList.add('correct');
-        if (h === false) dot.classList.add('wrong');
-        dotsEl.appendChild(dot);
-      });
+      for (let i = 0; i < 5; i++){
+        dots[i].classList.remove('correct','wrong');
+        if (history[i] === true) dots[i].classList.add('correct');
+        if (history[i] === false) dots[i].classList.add('wrong');
+      }
     }
 
-    function checkAnswer() {
-      const val = parseInt(answerEl.value);
-      if (isNaN(val)) return;
-      if (val === currentAnswer) {
-        correctSound.play();
+    // Check the user's answer
+    function submitAnswer(){
+      const raw = answerEl.value.trim();
+      if (raw === '') return;
+      const user = parseInt(raw, 10);
+      if (Number.isNaN(user)) return;
+
+      if (user === currentAnswer){
+        // correct
+        correctSound.currentTime = 0;
+        correctSound.play().catch(()=>{});
+        feedbackEl.textContent = '✅ Correct!';
         streak++;
-        if (streak > best) {
+        updateHistory(true);
+
+        // update/persist best
+        if (streak > best){
           best = streak;
           localStorage.setItem('bestScore', best);
           bestEl.textContent = best;
         }
-        updateDots(true);
       } else {
-        wrongSound.play();
+        // wrong
+        wrongSound.currentTime = 0;
+        wrongSound.play().catch(()=>{});
+        feedbackEl.textContent = `❌ Wrong — correct: ${currentAnswer}`;
         streak = 0;
-        updateDots(false);
+        updateHistory(false);
       }
+
       streakEl.textContent = streak;
-      newProblem();
+
+      // show next after short delay so feedback is visible
+      setTimeout(newProblem, 1100);
     }
 
-    answerEl.addEventListener('keydown', (e) => {
-      if (e.key === "Enter") checkAnswer();
-    });
-
-    document.querySelectorAll('.key').forEach(key => {
-      key.addEventListener('click', () => {
-        let val = key.textContent;
-        if (val === "⏎") {
-          checkAnswer();
-        } else if (val === "←") {
-          answerEl.value = answerEl.value.slice(0, -1);
-        } else {
-          answerEl.value += val;
+    // Keyboard handling (onscreen)
+    document.querySelectorAll('.key').forEach(k => {
+      k.addEventListener('click', () => {
+        const v = k.textContent.trim();
+        if (v === '⏎') {
+          submitAnswer();
+          return;
         }
+        if (v === '⌫') {
+          answerEl.value = answerEl.value.slice(0, -1);
+          answerEl.focus();
+          return;
+        }
+        // append digit
+        answerEl.value += v;
         answerEl.focus();
       });
     });
 
+    // allow Enter key from physical keyboard
+    answerEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitAnswer();
+    });
+
+    // start
     newProblem();
   </script>
 </body>
