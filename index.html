@@ -44,8 +44,11 @@
     #feedback {
       font-size: 1.2rem;
       margin-top: 0.5rem;
+      min-height: 1.5em;   /* Keeps space reserved */
       opacity: 0;
-      transition: opacity 0.3s ease-in-out, transform 0.3s ease;
+      text-align: center;  /* Always centered */
+      font-weight: bold;
+      transition: opacity 0.3s ease-in-out;
     }
     #feedback.show { opacity: 1; }
     .keyboard button {
@@ -133,13 +136,12 @@
     let highscore = localStorage.getItem("highscore") || 0;
     highscoreEl.textContent = highscore;
 
-    // Sound effects
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
     const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
     function newProblem() {
-      const a = Math.floor(Math.random() * 10) + 1; // 1–10
-      const b = Math.floor(Math.random() * 10) + 1; // 1–10
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
 
       if (Math.random() < 0.5) {
         currentAnswer = a * b;
