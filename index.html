@@ -58,7 +58,10 @@
 <body>
   <div class="trainer-box">
     <h1 class="title has-text-info">Times & Division Trainer</h1>
-    <p class="subtitle">🔥 Streak: <span id="streak">0</span></p>
+    <p class="subtitle">
+      🔥 Streak: <span id="streak">0</span>  
+      🏆 High Score: <span id="highscore">0</span>
+    </p>
 
     <div class="box">
       <p id="problem">Loading...</p>
@@ -97,11 +100,16 @@
     const answerEl = document.getElementById("answer");
     const feedbackEl = document.getElementById("feedback");
     const streakEl = document.getElementById("streak");
+    const highscoreEl = document.getElementById("highscore");
     const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3"), document.getElementById("dot4"), document.getElementById("dot5")];
 
     let streak = 0;
     let history = [];
     let currentAnswer;
+
+    // Load high score from localStorage
+    let highscore = localStorage.getItem("highscore") || 0;
+    highscoreEl.textContent = highscore;
 
     // Sound effects (swapped)
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
@@ -147,6 +155,13 @@
         correctSound.currentTime = 0;
         correctSound.play();
         updateHistory(true);
+
+        // Update high score
+        if (streak > highscore) {
+          highscore = streak;
+          localStorage.setItem("highscore", highscore);
+          highscoreEl.textContent = highscore;
+        }
       } else {
         streak = 0;
         feedbackEl.textContent = `❌ Wrong! Answer: ${currentAnswer}`;
