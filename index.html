@@ -46,7 +46,7 @@
       margin-top: 0.5rem;
       min-height: 1.5em;   /* Keeps space reserved */
       opacity: 0;
-      text-align: center;  /* Always centered */
+      text-align: center;
       font-weight: bold;
       transition: opacity 0.3s ease-in-out;
     }
@@ -77,6 +77,27 @@
       .score {
         font-size: 1rem;
       }
+    }
+    /* Floating mute button */
+    #muteBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #3273dc;
+      color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #muteBtn:hover {
+      background: #2759a5;
     }
   </style>
 </head>
@@ -120,6 +141,9 @@
     </div>
   </div>
 
+  <!-- Floating mute button -->
+  <div id="muteBtn">🔊</div>
+
   <script>
     const problemEl = document.getElementById("problem");
     const answerEl = document.getElementById("answer");
@@ -127,12 +151,14 @@
     const streakEl = document.getElementById("streak");
     const highscoreEl = document.getElementById("highscore");
     const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3"), document.getElementById("dot4"), document.getElementById("dot5")];
+    const muteBtn = document.getElementById("muteBtn");
 
-    let streak = parseInt(localStorage.getItem("streak")) || 0;  // load persisted streak
+    let streak = parseInt(localStorage.getItem("streak")) || 0;
     streakEl.textContent = streak;
 
     let history = [];
     let currentAnswer;
+    let muted = false;
 
     // Load high score from localStorage
     let highscore = parseInt(localStorage.getItem("highscore")) || 0;
@@ -140,6 +166,13 @@
 
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
     const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+
+    function playSound(sound) {
+      if (!muted) {
+        sound.currentTime = 0;
+        sound.play().catch(()=>{});
+      }
+    }
 
     function newProblem() {
       const a = Math.floor(Math.random() * 10) + 1;
@@ -174,11 +207,10 @@
 
       if (userAnswer === currentAnswer) {
         streak++;
-        localStorage.setItem("streak", streak); // save streak
+        localStorage.setItem("streak", streak);
         feedbackEl.textContent = "✅ Correct!";
         feedbackEl.className = "has-text-success show";
-        correctSound.currentTime = 0;
-        correctSound.play();
+        playSound(correctSound);
         updateHistory(true);
 
         if (streak > highscore) {
@@ -188,11 +220,10 @@
         }
       } else {
         streak = 0;
-        localStorage.setItem("streak", streak); // reset streak
+        localStorage.setItem("streak", streak);
         feedbackEl.textContent = `❌ Wrong! Answer: ${currentAnswer}`;
         feedbackEl.className = "has-text-danger show";
-        wrongSound.currentTime = 0;
-        wrongSound.play();
+        playSound(wrongSound);
         updateHistory(false);
       }
 
@@ -209,6 +240,11 @@
     });
 
     document.getElementById("enter").addEventListener("click", submitAnswer);
+
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      muteBtn.textContent = muted ? "🔇" : "🔊";
+    });
 
     newProblem();
   </script>
