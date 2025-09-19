@@ -53,15 +53,37 @@
       margin: 2px 0;
     }
     .button.is-large { font-size: 1.5rem; padding: 0.75em 1.2em; }
+    .top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .score {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    /* Responsive title adjustment */
+    .title.is-5 {
+      font-size: 1.5rem;
+    }
+    @media (max-width: 400px) {
+      .title.is-5 {
+        font-size: 1.2rem;
+      }
+      .score {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="trainer-box">
-    <h1 class="title has-text-info">Times & Division Trainer</h1>
-    <p class="subtitle">
-      🔥 Streak: <span id="streak">0</span>  
-      🏆 High Score: <span id="highscore">0</span>
-    </p>
+    <div class="top-line">
+      <div class="score">🔥 <span id="streak">0</span></div>
+      <h1 class="title has-text-info is-5" style="margin:0;">Times & Division Trainer</h1>
+      <div class="score">🏆 <span id="highscore">0</span></div>
+    </div>
 
     <div class="box">
       <p id="problem">Loading...</p>
@@ -111,7 +133,7 @@
     let highscore = localStorage.getItem("highscore") || 0;
     highscoreEl.textContent = highscore;
 
-    // Sound effects (swapped)
+    // Sound effects
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
     const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
@@ -120,11 +142,9 @@
       const b = Math.floor(Math.random() * 10) + 1; // 1–10
 
       if (Math.random() < 0.5) {
-        // Multiplication
         currentAnswer = a * b;
         problemEl.textContent = `${a} × ${b} = ?`;
       } else {
-        // Division inverse
         currentAnswer = a;
         problemEl.textContent = `${a * b} ÷ ${b} = ?`;
       }
@@ -156,7 +176,6 @@
         correctSound.play();
         updateHistory(true);
 
-        // Update high score
         if (streak > highscore) {
           highscore = streak;
           localStorage.setItem("highscore", highscore);
@@ -175,7 +194,6 @@
       setTimeout(newProblem, 1200);
     }
 
-    // Onscreen keyboard
     document.querySelectorAll(".key").forEach(button => {
       button.addEventListener("click", () => answerEl.value += button.textContent);
     });
@@ -186,8 +204,7 @@
 
     document.getElementById("enter").addEventListener("click", submitAnswer);
 
-    // Initialize first problem
     newProblem();
   </script>
 </body>
-</html>
+  </html>
