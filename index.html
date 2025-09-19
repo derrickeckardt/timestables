@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>Times Tables Trainer</title>
+  <title>Times & Division Trainer</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   <style>
     body {
@@ -20,95 +20,109 @@
       max-width: 500px;
       width: 100%;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #problem {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    #answer {
+      text-align: center;
+      font-size: 1.5rem;
+      width: 100%;
     }
     .dot {
       height: 20px;
       width: 20px;
       border-radius: 50%;
       display: inline-block;
-      margin: 0 6px;
+      margin: 0 4px;
       background-color: lightgray;
     }
     .dot.correct { background-color: #48c774; }
     .dot.wrong { background-color: #f14668; }
-    #problem { font-size: 2.5rem; font-weight: bold; }
-    #answer { text-align: center; font-size: 1.5rem; }
-    #submit { font-size: 1.5rem; padding: 0.75em 1.5em; }
     #feedback {
       font-size: 1.2rem;
+      margin-top: 0.5rem;
       opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease;
     }
     #feedback.show { opacity: 1; }
+    .keyboard button {
+      font-size: 1.5rem;
+      margin: 2px 0;
+    }
+    .button.is-large { font-size: 1.5rem; padding: 0.75em 1.2em; }
   </style>
 </head>
 <body>
-  <div class="trainer-box has-text-centered">
-    <h1 class="title has-text-info">Times Tables Trainer</h1>
-    <h2 class="subtitle">Streak: <span id="streak">0</span></h2>
+  <div class="trainer-box">
+    <h1 class="title has-text-info">Times & Division Trainer</h1>
+    <p class="subtitle">🔥 Streak: <span id="streak">0</span></p>
 
     <div class="box">
-      <h2 class="title" id="problem">A × B = ?</h2>
-      <div class="field has-addons has-addons-centered">
-        <div class="control">
-          <input 
-            id="answer" 
-            class="input is-large" 
-            type="text" 
-            inputmode="numeric" 
-            pattern="[0-9]*" 
-            placeholder="Your answer">
-        </div>
-        <div class="control">
-          <button id="submit" class="button is-primary is-large">✔</button>
-        </div>
-      </div>
-      <p id="feedback" class="mt-3"></p>
+      <p id="problem">Loading...</p>
+      <input id="answer" type="text" readonly placeholder="?">
+      <p id="feedback"></p>
     </div>
 
-    <div id="history" class="mt-5">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
+    <!-- Onscreen keyboard -->
+    <div class="keyboard columns is-multiline is-mobile is-centered" style="max-width:300px; margin:0 auto;">
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">1</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">2</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">3</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">4</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">5</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">6</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">7</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">8</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">9</button></div>
+      <div class="column is-one-third"><button id="backspace" class="button is-warning is-fullwidth">⌫</button></div>
+      <div class="column is-one-third"><button class="button is-fullwidth is-light key">0</button></div>
+      <div class="column is-one-third"><button id="enter" class="button is-success is-fullwidth">⏎</button></div>
+    </div>
+
+    <!-- History dots -->
+    <div class="mt-4">
+      <span class="dot" id="dot1"></span>
+      <span class="dot" id="dot2"></span>
+      <span class="dot" id="dot3"></span>
+      <span class="dot" id="dot4"></span>
+      <span class="dot" id="dot5"></span>
     </div>
   </div>
 
   <script>
-    const problemEl = document.getElementById('problem');
-    const answerEl = document.getElementById('answer');
-    const submitBtn = document.getElementById('submit');
-    const streakEl = document.getElementById('streak');
-    const feedbackEl = document.getElementById('feedback');
-    const historyDots = document.querySelectorAll('#history .dot');
+    const problemEl = document.getElementById("problem");
+    const answerEl = document.getElementById("answer");
+    const feedbackEl = document.getElementById("feedback");
+    const streakEl = document.getElementById("streak");
+    const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3"), document.getElementById("dot4"), document.getElementById("dot5")];
 
     let streak = 0;
     let history = [];
     let currentAnswer;
 
-    // Load sounds
-    const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-    const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    // Sound effects (swapped)
+    const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
     function newProblem() {
-      let a = Math.floor(Math.random() * 10) + 1; // 1–10
-      let b = Math.floor(Math.random() * 10) + 1; // 1–10
+      const a = Math.floor(Math.random() * 10) + 1; // 1–10
+      const b = Math.floor(Math.random() * 10) + 1; // 1–10
 
       if (Math.random() < 0.5) {
         // Multiplication
         currentAnswer = a * b;
         problemEl.textContent = `${a} × ${b} = ?`;
       } else {
-        // Division (inverse)
+        // Division inverse
         currentAnswer = a;
-        let product = a * b;
-        problemEl.textContent = `${product} ÷ ${b} = ?`;
+        problemEl.textContent = `${a * b} ÷ ${b} = ?`;
       }
 
-      answerEl.value = '';
-      answerEl.focus();
-      feedbackEl.textContent = '';
+      answerEl.value = "";
+      feedbackEl.textContent = "";
       feedbackEl.classList.remove("show", "has-text-success", "has-text-danger");
     }
 
@@ -116,42 +130,48 @@
       history.push(correct);
       if (history.length > 5) history.shift();
 
-      historyDots.forEach((dot, i) => {
-        dot.classList.remove('correct', 'wrong');
-        if (history[i] === true) dot.classList.add('correct');
-        if (history[i] === false) dot.classList.add('wrong');
+      dots.forEach((dot, i) => {
+        dot.classList.remove("correct", "wrong");
+        if (history[i] === true) dot.classList.add("correct");
+        if (history[i] === false) dot.classList.add("wrong");
       });
     }
 
-    function checkAnswer() {
+    function submitAnswer() {
       const userAnswer = parseInt(answerEl.value, 10);
 
       if (userAnswer === currentAnswer) {
         streak++;
-        updateHistory(true);
         feedbackEl.textContent = "✅ Correct!";
-        feedbackEl.className = "has-text-success mt-3 show";
+        feedbackEl.className = "has-text-success show";
         correctSound.currentTime = 0;
         correctSound.play();
+        updateHistory(true);
       } else {
         streak = 0;
-        updateHistory(false);
-        feedbackEl.textContent = `❌ Wrong! Correct answer: ${currentAnswer}`;
-        feedbackEl.className = "has-text-danger mt-3 show";
+        feedbackEl.textContent = `❌ Wrong! Answer: ${currentAnswer}`;
+        feedbackEl.className = "has-text-danger show";
         wrongSound.currentTime = 0;
         wrongSound.play();
+        updateHistory(false);
       }
 
       streakEl.textContent = streak;
-      setTimeout(newProblem, 1500);
+      setTimeout(newProblem, 1200);
     }
 
-    submitBtn.addEventListener('click', checkAnswer);
-    answerEl.addEventListener('keyup', e => {
-      if (e.key === 'Enter') checkAnswer();
+    // Onscreen keyboard
+    document.querySelectorAll(".key").forEach(button => {
+      button.addEventListener("click", () => answerEl.value += button.textContent);
     });
 
-    // Start
+    document.getElementById("backspace").addEventListener("click", () => {
+      answerEl.value = answerEl.value.slice(0, -1);
+    });
+
+    document.getElementById("enter").addEventListener("click", submitAnswer);
+
+    // Initialize first problem
     newProblem();
   </script>
 </body>
