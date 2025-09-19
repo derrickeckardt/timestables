@@ -128,12 +128,14 @@
     const highscoreEl = document.getElementById("highscore");
     const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3"), document.getElementById("dot4"), document.getElementById("dot5")];
 
-    let streak = 0;
+    let streak = parseInt(localStorage.getItem("streak")) || 0;  // load persisted streak
+    streakEl.textContent = streak;
+
     let history = [];
     let currentAnswer;
 
     // Load high score from localStorage
-    let highscore = localStorage.getItem("highscore") || 0;
+    let highscore = parseInt(localStorage.getItem("highscore")) || 0;
     highscoreEl.textContent = highscore;
 
     const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
@@ -172,6 +174,7 @@
 
       if (userAnswer === currentAnswer) {
         streak++;
+        localStorage.setItem("streak", streak); // save streak
         feedbackEl.textContent = "✅ Correct!";
         feedbackEl.className = "has-text-success show";
         correctSound.currentTime = 0;
@@ -185,6 +188,7 @@
         }
       } else {
         streak = 0;
+        localStorage.setItem("streak", streak); // reset streak
         feedbackEl.textContent = `❌ Wrong! Answer: ${currentAnswer}`;
         feedbackEl.className = "has-text-danger show";
         wrongSound.currentTime = 0;
@@ -209,4 +213,4 @@
     newProblem();
   </script>
 </body>
-  </html>
+</html>
