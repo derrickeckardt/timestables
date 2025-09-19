@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Times Tables Trainer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <style>
+    .dot {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 6px;
+      background-color: lightgray;
+    }
+    .dot.correct { background-color: #48c774; } /* Bulma green */
+    .dot.wrong { background-color: #f14668; }   /* Bulma red */
+    #problem { font-size: 2.5rem; }
+    #answer { text-align: center; font-size: 1.5rem; }
+    #submit { font-size: 1.5rem; padding: 0.75em 1.5em; }
+  </style>
+</head>
+<body class="has-background-light">
+  <section class="section">
+    <div class="container has-text-centered">
+      <h1 class="title">Times Tables Trainer</h1>
+      <h2 class="subtitle">Streak: <span id="streak">0</span></h2>
+
+      <div class="box">
+        <h2 class="title" id="problem">A × B = ?</h2>
+        <div class="field has-addons has-addons-centered">
+          <div class="control">
+            <input 
+              id="answer" 
+              class="input is-large" 
+              type="text" 
+              inputmode="numeric" 
+              pattern="[0-9]*" 
+              placeholder="Your answer">
+          </div>
+          <div class="control">
+            <button id="submit" class="button is-info is-large">✔</button>
+          </div>
+        </div>
+        <p id="feedback" class="mt-3"></p>
+      </div>
+
+      <div id="history" class="mt-5">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const problemEl = document.getElementById('problem');
+    const answerEl = document.getElementById('answer');
+    const submitBtn = document.getElementById('submit');
+    const streakEl = document.getElementById('streak');
+    const feedbackEl = document.getElementById('feedback');
+    const historyDots = document.querySelectorAll('#history .dot');
+
+    let streak = 0;
+    let history = [];
+    let currentAnswer;
+
+    function newProblem() {
+      let a = Math.floor(Math.random() * 11);
+      let b = Math.floor(Math.random() * 11);
+
+      // randomly pick multiplication or division
+      if (Math.random() < 0.5) {
+        // Multiplication
+        currentAnswer = a * b;
+        problemEl.textContent = `${a} × ${b} = ?`;
+      } else {
+        // Division (inverse of multiplication)
+        currentAnswer = a; // answer will be a
+        let product = a * b;
+        problemEl.textContent = `${product} ÷ ${b} = ?`;
+      }
+
+      answerEl.value = '';
+      answerEl.focus();
+      feedbackEl.textContent = '';
+    }
+
+    function updateHistory(correct) {
+      history.push(correct);
+      if (history.length > 5) history.shift();
+
+      historyDots.forEach((dot, i) => {
+        dot.classList.remove('correct', 'wrong');
+        if (history[i] === true) dot.classList.add('correct');
+        if (history[i] === false) dot.classList.add('wrong');
+      });
+    }
+
+    function checkAnswer() {
+      const userAnswer = parseInt(answerEl.value, 10);
+
+      if (userAnswer === currentAnswer) {
+        streak++;
+        updateHistory(true);
+        feedbackEl.textContent = "✅ Correct!";
+        feedbackEl.className = "has-text-success mt-3";
+      } else {
+        streak = 0;
+        updateHistory(false);
+        feedbackEl.textContent = `❌ Wrong! Correct answer: ${currentAnswer}`;
+        feedbackEl.className = "has-text-danger mt-3";
+      }
+
+      streakEl.textContent = streak;
+      setTimeout(newProblem, 1500);
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    answerEl.addEventListener('keyup', e => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    // Start
+    newProblem();
+  </script>
+</body>
+</html>
