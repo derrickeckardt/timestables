@@ -357,7 +357,13 @@
     }
 
     function submitAnswer() {
-      const userAnswer = parseInt(answerEl.value, 10);
+      const rawValue = answerEl.value.trim();
+      if (rawValue === "") {
+        feedbackEl.textContent = "Please enter an answer.";
+        feedbackEl.className = "has-text-warning show";
+        return;
+      }
+      const userAnswer = parseInt(rawValue, 10);
 
       if (userAnswer === currentAnswer) {
         streak++;
