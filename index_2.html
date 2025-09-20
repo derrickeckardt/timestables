@@ -67,6 +67,22 @@
     .progress-container {
       margin: 1rem 0;
     }
+    .progress-container progress {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+    .progress-container progress::-webkit-progress-bar {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+    .progress-container progress::-webkit-progress-value {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+    }
+    .progress-container progress::-moz-progress-bar {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+    }
     .badge-container {
       margin-top: 1.5rem;
       text-align: center;
@@ -84,6 +100,8 @@
       opacity: 0.3;
       transition: all 0.3s ease;
       filter: grayscale(100%);
+      width: 2.5rem;
+      text-align: center;
     }
     .badge.earned {
       opacity: 1;
@@ -100,7 +118,7 @@
       font-size: 0.7rem;
       color: #666;
       opacity: 0.7;
-      min-width: 2rem;
+      width: 2.5rem;
       text-align: center;
     }
   </style>
@@ -115,7 +133,7 @@
 
     <p>Level <span id="level">1</span></p>
     <div class="progress-container">
-      <progress id="levelProgress" class="progress is-info" value="0" max="10"></progress>
+      <progress id="levelProgress" value="0" max="10"></progress>
     </div>
 
     <div class="box">
