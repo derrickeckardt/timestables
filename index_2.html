@@ -69,15 +69,39 @@
     }
     .badge-container {
       margin-top: 1.5rem;
+      text-align: center;
+    }
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
     }
     .badge {
       display: inline-block;
-      margin: 0.25rem;
-      font-size: 1.5rem;
+      font-size: 2rem;
       opacity: 0.3;
+      transition: all 0.3s ease;
+      filter: grayscale(100%);
     }
     .badge.earned {
       opacity: 1;
+      filter: grayscale(0%);
+      transform: scale(1.1);
+    }
+    .badge-labels {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .badge-label {
+      font-size: 0.7rem;
+      color: #666;
+      opacity: 0.7;
+      min-width: 2rem;
+      text-align: center;
     }
   </style>
 </head>
@@ -125,11 +149,22 @@
       <span class="dot" id="dot5"></span>
     </div>
 
-    <!-- Badges -->
+    <!-- Badge Trophy Case -->
     <div class="badge-container">
-      <span class="badge" id="badge5">🌟</span>
-      <span class="badge" id="badge10">🎯</span>
-      <span class="badge" id="badgeLevel">🏅</span>
+      <div class="badge-row">
+        <span class="badge" id="badgeStarter">🏅</span>
+        <span class="badge" id="badgeRocket">🚀</span>
+        <span class="badge" id="badgeCrown">👑</span>
+        <span class="badge" id="badgeDiamond">💎</span>
+        <span class="badge" id="badgeDragon">🐉</span>
+      </div>
+      <div class="badge-labels">
+        <span class="badge-label">Starter</span>
+        <span class="badge-label">Rocket</span>
+        <span class="badge-label">Crown</span>
+        <span class="badge-label">Diamond</span>
+        <span class="badge-label">Dragon</span>
+      </div>
     </div>
   </div>
 
@@ -145,9 +180,11 @@
     const levelEl = document.getElementById("level");
     const progressEl = document.getElementById("levelProgress");
     const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3"), document.getElementById("dot4"), document.getElementById("dot5")];
-    const badge5 = document.getElementById("badge5");
-    const badge10 = document.getElementById("badge10");
-    const badgeLevel = document.getElementById("badgeLevel");
+    const badgeStarter = document.getElementById("badgeStarter");
+    const badgeRocket = document.getElementById("badgeRocket");
+    const badgeCrown = document.getElementById("badgeCrown");
+    const badgeDiamond = document.getElementById("badgeDiamond");
+    const badgeDragon = document.getElementById("badgeDragon");
 
     // Background themes per level
     const themes = [
@@ -174,9 +211,43 @@
     document.body.style.background = themes[(level - 1) % themes.length];
 
     let badges = JSON.parse(localStorage.getItem("badges") || "{}");
-    if (badges.streak5) badge5.classList.add("earned");
-    if (badges.streak10) badge10.classList.add("earned");
-    if (badges.levelUp) badgeLevel.classList.add("earned");
+    
+    // Initialize badges based on current level
+    function updateBadges() {
+      // Starter badge (Level 1-4)
+      if (level >= 1) {
+        badgeStarter.classList.add("earned");
+        badges.starter = true;
+      }
+      
+      // Rocket badge (Level 5)
+      if (level >= 5) {
+        badgeRocket.classList.add("earned");
+        badges.rocket = true;
+      }
+      
+      // Crown badge (Level 10)
+      if (level >= 10) {
+        badgeCrown.classList.add("earned");
+        badges.crown = true;
+      }
+      
+      // Diamond badge (Level 15)
+      if (level >= 15) {
+        badgeDiamond.classList.add("earned");
+        badges.diamond = true;
+      }
+      
+      // Dragon badge (Level 20)
+      if (level >= 20) {
+        badgeDragon.classList.add("earned");
+        badges.dragon = true;
+      }
+      
+      localStorage.setItem("badges", JSON.stringify(badges));
+    }
+    
+    updateBadges();
 
     let history = [];
     let currentAnswer;
@@ -252,10 +323,36 @@
           level++;
           progress = 0;
           levelEl.textContent = level;
-          badgeLevel.classList.add("earned");
-          badges.levelUp = true;
+          
+          // Check for new badge unlocks
+          let newBadgeUnlocked = false;
+          if (level === 5 && !badges.rocket) {
+            badgeRocket.classList.add("earned");
+            badges.rocket = true;
+            newBadgeUnlocked = true;
+          } else if (level === 10 && !badges.crown) {
+            badgeCrown.classList.add("earned");
+            badges.crown = true;
+            newBadgeUnlocked = true;
+          } else if (level === 15 && !badges.diamond) {
+            badgeDiamond.classList.add("earned");
+            badges.diamond = true;
+            newBadgeUnlocked = true;
+          } else if (level === 20 && !badges.dragon) {
+            badgeDragon.classList.add("earned");
+            badges.dragon = true;
+            newBadgeUnlocked = true;
+          }
+          
           localStorage.setItem("badges", JSON.stringify(badges));
+          
+          if (newBadgeUnlocked) {
+            // Extra special celebration for badge unlock!
+            setTimeout(() => fireConfetti(), 500);
+            setTimeout(() => fireConfetti(), 1000);
+          }
           fireConfetti(); // 🎉 Celebrate level up!
+          
           // Change theme
           document.body.style.background = themes[(level - 1) % themes.length];
         }
@@ -263,15 +360,6 @@
         localStorage.setItem("progress", progress);
         localStorage.setItem("level", level);
 
-        if (streak >= 5) {
-          badge5.classList.add("earned");
-          badges.streak5 = true;
-        }
-        if (streak >= 10) {
-          badge10.classList.add("earned");
-          badges.streak10 = true;
-        }
-        localStorage.setItem("badges", JSON.stringify(badges));
 
         if (streak > highscore) {
           highscore = streak;
