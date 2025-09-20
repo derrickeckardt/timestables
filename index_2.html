@@ -68,19 +68,19 @@
       margin: 1rem 0;
     }
     .progress-container progress {
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: rgba(0, 0, 0, 0.1);
       border-radius: 10px;
     }
     .progress-container progress::-webkit-progress-bar {
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: rgba(0, 0, 0, 0.1);
       border-radius: 10px;
     }
     .progress-container progress::-webkit-progress-value {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: var(--progress-color, #3273dc);
       border-radius: 10px;
     }
     .progress-container progress::-moz-progress-bar {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: var(--progress-color, #3273dc);
       border-radius: 10px;
     }
     .badge-container {
@@ -227,6 +227,29 @@
 
     // Apply theme for current level
     document.body.style.background = themes[(level - 1) % themes.length];
+    
+    // Update progress bar color to match theme
+    function updateProgressBarColor() {
+      const currentTheme = themes[(level - 1) % themes.length];
+      const progressBar = document.getElementById('levelProgress');
+      
+      // Extract colors from gradient theme and use the first color for progress bar
+      if (currentTheme.includes('48c6ef')) {
+        progressBar.style.setProperty('--progress-color', '#48c6ef');
+      } else if (currentTheme.includes('43e97b')) {
+        progressBar.style.setProperty('--progress-color', '#43e97b');
+      } else if (currentTheme.includes('a18cd1')) {
+        progressBar.style.setProperty('--progress-color', '#a18cd1');
+      } else if (currentTheme.includes('f6d365')) {
+        progressBar.style.setProperty('--progress-color', '#f6d365');
+      } else if (currentTheme.includes('ff9a9e')) {
+        progressBar.style.setProperty('--progress-color', '#ff9a9e');
+      } else if (currentTheme.includes('84fab0')) {
+        progressBar.style.setProperty('--progress-color', '#84fab0');
+      }
+    }
+    
+    updateProgressBarColor();
 
     let badges = JSON.parse(localStorage.getItem("badges") || "{}");
     
@@ -373,6 +396,7 @@
           
           // Change theme
           document.body.style.background = themes[(level - 1) % themes.length];
+          updateProgressBarColor();
         }
         progressEl.value = progress;
         localStorage.setItem("progress", progress);
