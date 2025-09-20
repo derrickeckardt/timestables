@@ -130,6 +130,13 @@
       <h1 class="title has-text-info is-5" style="margin:0;">Math Adventure</h1>
       <div class="score">🏆 <span id="highscore">0</span></div>
     </div>
+    
+    <!-- Reset Button -->
+    <div class="has-text-centered mb-3">
+      <button id="resetButton" class="button is-small is-danger is-outlined">
+        🔄 Reset to Level 1
+      </button>
+    </div>
 
     <p>Level <span id="level">1</span></p>
     <div class="progress-container">
@@ -430,6 +437,51 @@
     });
 
     document.getElementById("enter").addEventListener("click", submitAnswer);
+
+    // Reset button functionality
+    document.getElementById("resetButton").addEventListener("click", resetGame);
+
+    function resetGame() {
+      // Confirm with user before resetting
+      if (confirm("Are you sure you want to reset to Level 1? This will remove all earned badges but keep your high score.")) {
+        // Reset level and progress
+        level = 1;
+        progress = 0;
+        levelEl.textContent = level;
+        progressEl.value = progress;
+        
+        // Reset streak to 0
+        streak = 0;
+        streakEl.textContent = streak;
+        
+        // Clear all badges
+        badges = {};
+        badgeStarter.classList.remove("earned");
+        badgeRocket.classList.remove("earned");
+        badgeCrown.classList.remove("earned");
+        badgeDiamond.classList.remove("earned");
+        badgeDragon.classList.remove("earned");
+        
+        // Clear history dots
+        history = [];
+        dots.forEach(dot => {
+          dot.classList.remove("correct", "wrong");
+        });
+        
+        // Update theme to level 1 theme
+        document.body.style.background = themes[0];
+        updateProgressBarColor();
+        
+        // Save to localStorage
+        localStorage.setItem("level", level);
+        localStorage.setItem("progress", progress);
+        localStorage.setItem("streak", streak);
+        localStorage.setItem("badges", JSON.stringify(badges));
+        
+        // Generate new problem
+        newProblem();
+      }
+    }
 
     newProblem();
   </script>
