@@ -428,36 +428,37 @@
     
     updateProgressBarColor();
 
-    let badges = JSON.parse(localStorage.getItem("badges") || "{}");
-    
-    // Initialize badges based on current level
-    function updateBadges() {
-      if (level >= 2) {
-        badgeStarter.classList.add("earned");
-        badges.starter = true;
-      }
-      if (level >= 5) {
-        badgeDragon.classList.add("earned");
-        badges.dragon = true;
-      }
-      if (level >= 10) {
-        badgeRocket.classList.add("earned");
-        badges.rocket = true;
-      }
-      if (level >= 15) {
-        badgeDiamond.classList.add("earned");
-        badges.diamond = true;
-      }
-      if (level >= 20) {
-        badgeCrown.classList.add("earned");
-        badges.crown = true;
-      }
-      localStorage.setItem("badges", JSON.stringify(badges));
-    }
-    
-    updateBadges();
+        let badges = JSON.parse(localStorage.getItem("badges") || "{}");
 
-    let currentAnswer;
+        function updateBadges() {
+          if (level >= 2) {
+            badgeStarter.classList.add("earned");
+            badges.starter = true;
+          }
+          if (level >= 5) {
+            badgeDragon.classList.add("earned");
+            badges.dragon = true;
+          }
+          if (level >= 10) {
+            badgeRocket.classList.add("earned");
+            badges.rocket = true;
+          }
+          if (level >= 15) {
+            badgeDiamond.classList.add("earned");
+            badges.diamond = true;
+          }
+          if (level >= 20) {
+            badgeCrown.classList.add("earned");
+            badges.crown = true;
+          }
+          localStorage.setItem("badges", JSON.stringify(badges));
+        }
+
+        updateBadges();
+
+    
+
+        let currentAnswer;
 
     function fireConfetti() {
       const duration = 2 * 1000;
@@ -756,9 +757,18 @@
         progressEl.value = progress;
         streakEl.textContent = streak;
 
+        // Clear all badges
+        badges = {};
+        badgeStarter.classList.remove("earned");
+        badgeRocket.classList.remove("earned");
+        badgeCrown.classList.remove("earned");
+        badgeDiamond.classList.remove("earned");
+        badgeDragon.classList.remove("earned");
+
         localStorage.setItem("level", level);
         localStorage.setItem("progress", progress);
         localStorage.setItem("streak", streak);
+        localStorage.setItem("badges", JSON.stringify(badges));
 
         gameContent.classList.remove("is-hidden");
         gameOverScreen.classList.remove("is-active");
